@@ -14,17 +14,22 @@ body { background-color: black; }
 var ctx;
 var width=800;
 var height=400;
+var i=0; //iterations
 var dx1=1;
 var dx2=3;
+var dx3=2;
 var dy1=3;
-var dy2=1;
+var dy2=2;
+var dy3=1;
 var x1=10;
 var x2=40;
+var x3=20;
 var y1=20;
 var y2=60;
+var y3=40;
 function report(){
 	document.getElementById("report").innerHTML=
-	"x1="+x1+"   y1="+y1+"<br/>x2="+x2+"   y2="+y1;
+	"i="+i+"<br/>x1="+x1+"   y1="+y1+"<br/>x2="+x2+"   y2="+y2+"<br/>x3="+x3+"   y3="+y3;
 }//EO report()
 function draw1p(){
 	ctx=myCanvas.getContext('2d');
@@ -59,7 +64,7 @@ function draw2p(){
 	y2+=dy2;
 	report();
 }//EO draw2p()
-function drawL(){
+function drawL(){ //Line
 	ctx=myCanvas.getContext('2d');
 	ctx.clearRect(0,0,width,height);
 	ctx.beginPath();
@@ -77,7 +82,31 @@ function drawL(){
 	y2+=dy2;
 	report();
 }//EO drawL()
-setInterval(drawL,1);
+function drawT(){ //Triangle
+	i++;
+	ctx=myCanvas.getContext('2d');
+	ctx.clearRect(0,0,width,height);
+	ctx.beginPath();
+	ctx.strokeStyle="#c0c0c0";
+	ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+	ctx.moveTo(x2,y2); ctx.lineTo(x3,y3);
+	ctx.moveTo(x3,y3); ctx.lineTo(x1,y1);
+	ctx.stroke();
+	if(x1<=0 || x1>=width) dx1=-dx1;
+	if(x2<=0 || x2>=width) dx2=-dx2;
+	if(x3<=0 || x3>=width) dx3=-dx3;
+	if(y1<=0 || y1>=height) dy1=-dy1;
+	if(y2<=0 || y2>=height) dy2=-dy2;
+	if(y3<=0 || y3>=height) dy3=-dy3;
+	x1+=dx1;
+	x2+=dx2;
+	x3+=dx3;
+	y1+=dy1;
+	y2+=dy2;
+	y3+=dy3;
+	report();
+}//EO drawL()
+setInterval(drawT,1);
 </script>
 </head>
 <body>
