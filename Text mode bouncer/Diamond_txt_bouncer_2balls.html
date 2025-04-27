@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diamond Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .diamond-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .diamond {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333; /* Dark gray for background diamonds */
+            transition: color 0.1s;
+        }
+        
+        .diamond.ball1 {
+            color: #e0e0e0; /* Light gray for first ball */
+        }
+        
+        .diamond.ball2 {
+            color: #a0a0a0; /* Medium gray for second ball - slightly different */
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #333;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+            font-size: 12px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Diamond Bouncing Ball Animation</h1>
+    </div>
+    
+    <div class="container" id="container">
+        <div class="diamond-grid" id="diamondGrid"></div>
+    </div>
+    
+    <div class="footer">
+        Dark Themed Diamond Animation
+    </div>
+    
+    <script>
+        // Get container and create grid
+        const container = document.getElementById('container');
+        const diamondGrid = document.getElementById('diamondGrid');
+        const diamondSymbol = '◆';
+        
+        // Get container dimensions
+        let containerWidth = container.clientWidth;
+        let containerHeight = container.clientHeight;
+        
+        // Calculate grid dimensions
+        const cellSize = 20;
+        let columns = Math.floor(containerWidth / cellSize);
+        let rows = Math.floor(containerHeight / cellSize);
+        
+        // Ball 1 properties
+        let ball1 = {
+            x: 5,
+            y: 5,
+            speedX: 1,
+            speedY: 0.8,
+            size: 1 // 1x1 grid of diamonds
+        };
+        
+        // Ball 2 properties
+        let ball2 = {
+            x: 15,
+            y: 10,
+            speedX: -0.7,
+            speedY: 1.2,
+            size: 1 // 1x1 grid of diamonds
+        };
+        
+        // Grid of diamond cells
+        let grid = [];
+        
+        // Create the grid of diamonds
+        function createGrid() {
+            diamondGrid.innerHTML = '';
+            diamondGrid.style.gridTemplateColumns = `repeat(${columns}, ${cellSize}px)`;
+            diamondGrid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
+            
+            grid = [];
+            
+            for (let y = 0; y < rows; y++) {
+                let row = [];
+                for (let x = 0; x < columns; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'diamond';
+                    cell.textContent = diamondSymbol;
+                    diamondGrid.appendChild(cell);
+                    row.push(cell);
+                }
+                grid.push(row);
+            }
+        }
+        
+        // Update ball visualization
+        function updateBalls() {
+            // Clear previous ball positions
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < columns; x++) {
+                    if (grid[y] && grid[y][x]) {
+                        grid[y][x].classList.remove('ball1');
+                        grid[y][x].classList.remove('ball2');
+                    }
+                }
+            }
+            
+            // Draw ball 1
+            const ball1XInt = Math.floor(ball1.x);
+            const ball1YInt = Math.floor(ball1.y);
+            
+            if (ball1YInt < rows && ball1XInt < columns && 
+                ball1YInt >= 0 && ball1XInt >= 0 &&
+                grid[ball1YInt] && grid[ball1YInt][ball1XInt]) {
+                grid[ball1YInt][ball1XInt].classList.add('ball1');
+            }
+            
+            // Draw ball 2
+            const ball2XInt = Math.floor(ball2.x);
+            const ball2YInt = Math.floor(ball2.y);
+            
+            if (ball2YInt < rows && ball2XInt < columns &&
+                ball2YInt >= 0 && ball2XInt >= 0 &&
+                grid[ball2YInt] && grid[ball2YInt][ball2XInt]) {
+                grid[ball2YInt][ball2XInt].classList.add('ball2');
+            }
+        }
+        
+        // Animation function with delay
+        let lastTimestamp = 0;
+        const frameDelay = 50; // Milliseconds between frames
+        
+        function animate(timestamp) {
+            // Only update if enough time has passed
+            if (timestamp - lastTimestamp >= frameDelay) {
+                lastTimestamp = timestamp;
+                
+                // Update ball 1 position
+                ball1.x += ball1.speedX;
+                ball1.y += ball1.speedY;
+                
+                // Bounce ball 1 off walls
+                if (ball1.x <= 0 || ball1.x >= columns - ball1.size) {
+                    ball1.speedX = -ball1.speedX;
+                    // Ensure ball 1 stays within bounds
+                    ball1.x = ball1.x <= 0 ? 0 : columns - ball1.size;
+                }
+                
+                if (ball1.y <= 0 || ball1.y >= rows - ball1.size) {
+                    ball1.speedY = -ball1.speedY;
+                    // Ensure ball 1 stays within bounds
+                    ball1.y = ball1.y <= 0 ? 0 : rows - ball1.size;
+                }
+                
+                // Update ball 2 position
+                ball2.x += ball2.speedX;
+                ball2.y += ball2.speedY;
+                
+                // Bounce ball 2 off walls
+                if (ball2.x <= 0 || ball2.x >= columns - ball2.size) {
+                    ball2.speedX = -ball2.speedX;
+                    // Ensure ball 2 stays within bounds
+                    ball2.x = ball2.x <= 0 ? 0 : columns - ball2.size;
+                }
+                
+                if (ball2.y <= 0 || ball2.y >= rows - ball2.size) {
+                    ball2.speedY = -ball2.speedY;
+                    // Ensure ball 2 stays within bounds
+                    ball2.y = ball2.y <= 0 ? 0 : rows - ball2.size;
+                }
+                
+                // Update ball visualization
+                updateBalls();
+            }
+            
+            // Request next frame
+            requestAnimationFrame(animate);
+        }
+        
+        // Handle window resize
+        function handleResize() {
+            containerWidth = container.clientWidth;
+            containerHeight = container.clientHeight;
+            
+            const oldColumns = columns;
+            const oldRows = rows;
+            
+            columns = Math.floor(containerWidth / cellSize);
+            rows = Math.floor(containerHeight / cellSize);
+            
+            if (oldColumns !== columns || oldRows !== rows) {
+                createGrid();
+                
+                // Ensure balls stay within new bounds
+                if (ball1.x >= columns - ball1.size) {
+                    ball1.x = columns - ball1.size - 1;
+                }
+                if (ball1.y >= rows - ball1.size) {
+                    ball1.y = rows - ball1.size - 1;
+                }
+                
+                if (ball2.x >= columns - ball2.size) {
+                    ball2.x = columns - ball2.size - 1;
+                }
+                if (ball2.y >= rows - ball2.size) {
+                    ball2.y = rows - ball2.size - 1;
+                }
+                
+                updateBalls();
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('resize', handleResize);
+        createGrid();
+        updateBalls();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

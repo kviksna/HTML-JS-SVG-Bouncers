@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diamond Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .diamond-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .diamond {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333; /* Dark gray for background diamonds */
+            transition: color 0.1s;
+        }
+        
+        .diamond.ball {
+            color: #e0e0e0; /* Light gray for ball diamonds */
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #333;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+            font-size: 12px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Diamond Bouncing Ball Animation</h1>
+    </div>
+    
+    <div class="container" id="container">
+        <div class="diamond-grid" id="diamondGrid"></div>
+    </div>
+    
+    <div class="footer">
+        Dark Themed Diamond Animation
+    </div>
+    
+    <script>
+        // Get container and create grid
+        const container = document.getElementById('container');
+        const diamondGrid = document.getElementById('diamondGrid');
+        const diamondSymbol = '◆';
+        
+        // Get container dimensions
+        let containerWidth = container.clientWidth;
+        let containerHeight = container.clientHeight;
+        
+        // Calculate grid dimensions
+        const cellSize = 20;
+        let columns = Math.floor(containerWidth / cellSize);
+        let rows = Math.floor(containerHeight / cellSize);
+        
+        // Ball properties
+        let ballSize = 2; // 2x2 grid of diamonds
+        let ballX = 5;
+        let ballY = 5;
+        let ballSpeedX = 1;
+        let ballSpeedY = 0.8;
+        
+        // Grid of diamond cells
+        let grid = [];
+        
+        // Create the grid of diamonds
+        function createGrid() {
+            diamondGrid.innerHTML = '';
+            diamondGrid.style.gridTemplateColumns = `repeat(${columns}, ${cellSize}px)`;
+            diamondGrid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
+            
+            grid = [];
+            
+            for (let y = 0; y < rows; y++) {
+                let row = [];
+                for (let x = 0; x < columns; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'diamond';
+                    cell.textContent = diamondSymbol;
+                    diamondGrid.appendChild(cell);
+                    row.push(cell);
+                }
+                grid.push(row);
+            }
+        }
+        
+        // Update ball visualization
+        function updateBall() {
+            // Clear previous ball position
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < columns; x++) {
+                    if (grid[y] && grid[y][x]) {
+                        grid[y][x].classList.remove('ball');
+                    }
+                }
+            }
+            
+            // Draw new ball position
+            const ballXInt = Math.floor(ballX);
+            const ballYInt = Math.floor(ballY);
+            
+            for (let y = 0; y < ballSize; y++) {
+                for (let x = 0; x < ballSize; x++) {
+                    const gridY = ballYInt + y;
+                    const gridX = ballXInt + x;
+                    
+                    // Check if within grid boundaries
+                    if (gridY < rows && gridX < columns && grid[gridY] && grid[gridY][gridX]) {
+                        grid[gridY][gridX].classList.add('ball');
+                    }
+                }
+            }
+        }
+        
+        // Animation function with delay
+        let lastTimestamp = 0;
+        const frameDelay = 200; // Milliseconds between frames
+        
+        function animate(timestamp) {
+            // Only update if enough time has passed
+            if (timestamp - lastTimestamp >= frameDelay) {
+                lastTimestamp = timestamp;
+                
+                // Update ball position
+                ballX += ballSpeedX;
+                ballY += ballSpeedY;
+                
+                // Bounce off walls
+                if (ballX <= 0 || ballX >= columns - ballSize) {
+                    ballSpeedX = -ballSpeedX;
+                    // Ensure the ball stays within bounds
+                    ballX = ballX <= 0 ? 0 : columns - ballSize;
+                }
+                
+                if (ballY <= 0 || ballY >= rows - ballSize) {
+                    ballSpeedY = -ballSpeedY;
+                    // Ensure the ball stays within bounds
+                    ballY = ballY <= 0 ? 0 : rows - ballSize;
+                }
+                
+                // Update ball visualization
+                updateBall();
+            }
+            
+            // Request next frame
+            requestAnimationFrame(animate);
+        }
+        
+        // Handle window resize
+        function handleResize() {
+            containerWidth = container.clientWidth;
+            containerHeight = container.clientHeight;
+            
+            const oldColumns = columns;
+            const oldRows = rows;
+            
+            columns = Math.floor(containerWidth / cellSize);
+            rows = Math.floor(containerHeight / cellSize);
+            
+            if (oldColumns !== columns || oldRows !== rows) {
+                createGrid();
+                
+                // Ensure ball stays within new bounds
+                if (ballX >= columns - ballSize) {
+                    ballX = columns - ballSize - 1;
+                }
+                if (ballY >= rows - ballSize) {
+                    ballY = rows - ballSize - 1;
+                }
+                
+                updateBall();
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('resize', handleResize);
+        createGrid();
+        updateBall();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

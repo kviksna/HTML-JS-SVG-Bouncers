@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diamond Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .diamond-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 20px);
+            grid-template-rows: repeat(auto-fill, 20px);
+            color: #333;
+            font-size: 14px;
+            line-height: 20px;
+            text-align: center;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #333;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+            font-size: 12px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Diamond Bouncing Ball Animation</h1>
+    </div>
+    
+    <div class="container" id="container">
+        <div class="diamond-bg" id="diamondBg"></div>
+    </div>
+    
+    <div class="footer">
+        Dark Themed Diamond Animation
+    </div>
+    
+    <script>
+        // Fill the background with diamond symbols
+        const diamondBg = document.getElementById('diamondBg');
+        const container = document.getElementById('container');
+        const diamondSymbol = '◆';
+        
+        // Get container dimensions
+        let containerWidth = container.clientWidth;
+        let containerHeight = container.clientHeight;
+        
+        // Calculate number of columns and rows
+        const diamondSize = 20;
+        let columns = Math.ceil(containerWidth / diamondSize);
+        let rows = Math.ceil(containerHeight / diamondSize);
+        
+        // Fill background with diamonds
+        function fillBackground() {
+            diamondBg.innerHTML = '';
+            for (let i = 0; i < rows * columns; i++) {
+                const span = document.createElement('span');
+                span.textContent = diamondSymbol;
+                diamondBg.appendChild(span);
+            }
+        }
+        
+        // Ball properties
+        let ballSize = 2; // Size in diamond units (2x2)
+        let ballX = 5;
+        let ballY = 5;
+        let ballSpeedX = 2;
+        let ballSpeedY = 1.5;
+        
+        // Draw the ball
+        function createBall() {
+            // Ball is represented by lighter diamonds
+            const ballElement = document.createElement('div');
+            ballElement.id = 'ball';
+            ballElement.style.position = 'absolute';
+            ballElement.style.width = (ballSize * diamondSize) + 'px';
+            ballElement.style.height = (ballSize * diamondSize) + 'px';
+            ballElement.style.display = 'grid';
+            ballElement.style.gridTemplateColumns = `repeat(${ballSize}, 1fr)`;
+            ballElement.style.gridTemplateRows = `repeat(${ballSize}, 1fr)`;
+            ballElement.style.color = '#e0e0e0';
+            ballElement.style.fontSize = '14px';
+            ballElement.style.lineHeight = '20px';
+            ballElement.style.textAlign = 'center';
+            //ballElement.style.backgroundImage = 'radial-gradient(circle, #aaaaaa 0%, #666666 100%)';
+            //ballElement.style.borderRadius = '50%';
+            //ballElement.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.3)';
+            
+            // Fill ball with diamonds
+            for (let i = 0; i < ballSize * ballSize; i++) {
+                const span = document.createElement('span');
+                span.textContent = diamondSymbol;
+                ballElement.appendChild(span);
+            }
+            
+            container.appendChild(ballElement);
+            return ballElement;
+        }
+        
+        // Animation function
+        function animateBall(ball) {
+            // Update ball position
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+            
+            // Bounce off walls
+            if (ballX <= 0 || ballX >= columns - ballSize) {
+                ballSpeedX = -ballSpeedX;
+                // Ensure the ball stays within bounds
+                ballX = ballX <= 0 ? 0 : columns - ballSize;
+            }
+            
+            if (ballY <= 0 || ballY >= rows - ballSize) {
+                ballSpeedY = -ballSpeedY;
+                // Ensure the ball stays within bounds
+                ballY = ballY <= 0 ? 0 : rows - ballSize;
+            }
+            
+            // Update ball position
+            ball.style.left = (ballX * diamondSize) + 'px';
+            ball.style.top = (ballY * diamondSize) + 'px';
+            			
+            // Request next frame
+            //requestAnimationFrame(() => animateBall(ball));
+			setTimeout(() => {
+				requestAnimationFrame(() => animateBall(ball));
+			}, 200); // ms
+        }
+        
+        // Handle window resize
+        function handleResize() {
+            containerWidth = container.clientWidth;
+            containerHeight = container.clientHeight;
+            columns = Math.ceil(containerWidth / diamondSize);
+            rows = Math.ceil(containerHeight / diamondSize);
+            fillBackground();
+            
+            // Ensure ball stays within new bounds
+            if (ballX >= columns - ballSize) {
+                ballX = columns - ballSize - 1;
+            }
+            if (ballY >= rows - ballSize) {
+                ballY = rows - ballSize - 1;
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('resize', handleResize);
+        fillBackground();
+        const ball = createBall();
+        animateBall(ball);
+    </script>
+</body>
+</html>
